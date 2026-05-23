@@ -1,0 +1,7 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Neovim runtime state (not part of config — regenerated on startup)
+config/plugin/
+config/undodir/
