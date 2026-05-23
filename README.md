@@ -2,15 +2,26 @@
 
 A full Neovim IDE for WSL2, installed in one command.
 
-> **Screenshot coming soon**
+---
+
+## Preview
+
+<p align="center">
+  <img src="assets/snapshot1.png" width="49%" alt="Neovim startup screen" />
+  <img src="assets/snapshot2.png" width="49%" alt="IDE in action" />
+</p>
+
+<p align="center">
+  <em>Startup screen &nbsp;&nbsp;|&nbsp;&nbsp; IDE in action — nvim-tree, melange theme, lualine</em>
+</p>
 
 ---
 
 ## Quick Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/neovim-wsl2-ide.git
-cd neovim-wsl2-ide
+git clone https://github.com/uzorchukwu/Neovim-IDE-for-WSL2.git
+cd Neovim-IDE-for-WSL2
 bash install.sh
 ```
 
@@ -208,4 +219,4 @@ To add a new LSP server:
 
 ## Credits
 
-Built on top of the [Zero to Neovim](https://github.com/YOUR_COURSE_LINK) course setup.
+This won't be complete without a special thank you to Radley Lewis (@theradlectures), he is simply wonderful.
