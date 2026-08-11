@@ -16,6 +16,12 @@ local shfmt = require("efmls-configs.formatters.shfmt")
 local hadolint = require("efmls-configs.linters.hadolint")
 local fixjson = require("efmls-configs.formatters.fixjson")
 
+local fs = require("efmls-configs.fs")
+local nginxfmt = {
+	formatCommand = fs.executable("nginxfmt") .. " -",
+	formatStdin = true,
+}
+
 vim.lsp.config("efm", {
 	filetypes = {
 		"lua",
@@ -36,6 +42,7 @@ vim.lsp.config("efm", {
 		"vue",
 		"svelte",
 		"scss",
+		"nginx",
 	},
 	init_options = {
 		documentFormatting = true,
@@ -61,6 +68,7 @@ vim.lsp.config("efm", {
 			dockerfile = { hadolint },
 			go = { revive, gofumpt },
 			sh = { shellcheck, shfmt },
+			nginx = { nginxfmt },
 		},
 	},
 })

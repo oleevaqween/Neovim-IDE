@@ -14,15 +14,21 @@ warn()    { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 error()   { echo -e "${RED}[ERROR]${NC} $*"; exit 1; }
 
 echo ""
-echo "  Neovim WSL2 IDE — installer"
+echo "  Neovim IDE — installer"
 echo "────────────────────────────────────────"
 echo ""
 
-# ── WSL2 check ───────────────────────────────────────────────────────────────
-if ! grep -qi "microsoft" /proc/version 2>/dev/null; then
-    error "This script must be run inside WSL2."
+# ── Platform detection ────────────────────────────────────────────────────────
+# Same config works on WSL2 and native Linux; only the clipboard bridge differs.
+if grep -qi "microsoft" /proc/version 2>/dev/null; then
+    PLATFORM="wsl2"
+    success "WSL2 detected."
+elif [[ "$(uname -s)" == "Linux" ]]; then
+    PLATFORM="linux"
+    success "Native Linux detected."
+else
+    error "Unsupported platform: $(uname -s). This installer supports WSL2 and native Linux."
 fi
-success "WSL2 detected."
 
 # ── System dependencies ───────────────────────────────────────────────────────
 info "Installing system dependencies..."
@@ -33,6 +39,7 @@ sudo apt-get install -y -qq \
     unzip \
     ripgrep \
     fd-find \
+    tmux \
     build-essential \
     python3 \
     python3-pip \
@@ -62,15 +69,25 @@ if ! command -v nvim &>/dev/null; then
 fi
 success "Neovim $(nvim --version | head -1) ready."
 
-# ── win32yank (Windows↔WSL2 clipboard bridge) ────────────────────────────────
-if ! command -v win32yank.exe &>/dev/null; then
-    info "Installing win32yank..."
-    curl -sLO "https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip"
-    unzip -q win32yank-x64.zip win32yank.exe
-    sudo mv win32yank.exe /usr/local/bin/
-    rm win32yank-x64.zip
+# ── Clipboard bridge ──────────────────────────────────────────────────────────
+if [[ "$PLATFORM" == "wsl2" ]]; then
+    # win32yank bridges WSL2's clipboard to the Windows host clipboard.
+    if ! command -v win32yank.exe &>/dev/null; then
+        info "Installing win32yank..."
+        curl -sLO "https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip"
+        unzip -q win32yank-x64.zip win32yank.exe
+        sudo mv win32yank.exe /usr/local/bin/
+        rm win32yank-x64.zip
+    fi
+    success "win32yank ready."
+else
+    # xclip covers X11/XWayland, wl-clipboard covers native Wayland — nvim
+    # auto-detects whichever is present, so installing both keeps this
+    # working regardless of the user's session type.
+    info "Installing clipboard tools (xclip, wl-clipboard)..."
+    sudo apt-get install -y -qq xclip wl-clipboard
+    success "Clipboard tools ready."
 fi
-success "win32yank ready."
 
 # ── Backup existing Neovim config ────────────────────────────────────────────
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
@@ -83,7 +100,7 @@ if [ -d "$HOME/.local/share/nvim" ]; then
     mv "$HOME/.local/share/nvim" "$HOME/.local/share/nvim.bak.$TIMESTAMP"
 fi
 
-# ── Copy config ───────────────────────────────────────────────────────────────
+# ── Copy Neovim config ────────────────────────────────────────────────────────
 info "Installing Neovim config..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p "$HOME/.config/nvim"
@@ -101,8 +118,28 @@ info "This can take several minutes on first run — please wait."
 nvim --headless "+MasonToolsInstallSync" +qa 2>&1
 success "All tools installed."
 
+# ── tmux config + TPM (Tmux Plugin Manager) ──────────────────────────────────
+info "Installing tmux config..."
+if [ -f "$HOME/.tmux.conf" ]; then
+    warn "Existing tmux config found — backing up to ~/.tmux.conf.bak.$TIMESTAMP"
+    mv "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak.$TIMESTAMP"
+fi
+cp "$SCRIPT_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+mkdir -p "$HOME/.tmux/scripts"
+cp "$SCRIPT_DIR/tmux/scripts/"*.sh "$HOME/.tmux/scripts/"
+chmod +x "$HOME/.tmux/scripts/"*.sh
+success "tmux config installed to ~/.tmux.conf"
+
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+    info "Installing TPM (Tmux Plugin Manager)..."
+    git clone -q https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+fi
+info "Installing tmux plugins via TPM..."
+"$HOME/.tmux/plugins/tpm/bin/install_plugins" > /dev/null 2>&1 || warn "Run 'prefix + I' inside tmux to finish installing plugins."
+success "tmux plugins ready."
+
 # ── Done ─────────────────────────────────────────────────────────────────────
 echo ""
 echo "────────────────────────────────────────"
-success "Setup complete! Run 'nvim' to get started."
+success "Setup complete! Run 'nvim' to get started, or 'tmux' for the full environment."
 echo ""

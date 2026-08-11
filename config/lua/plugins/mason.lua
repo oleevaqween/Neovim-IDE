@@ -27,7 +27,11 @@ return {
 				"json-lsp",
 				"tailwindcss-language-server",
 				"yaml-language-server",
-				"efm-langserver",
+				"efm",
+				"rust-analyzer",
+				"clangd",
+				"vue-language-server",
+				"sqls",
 
 				-- Formatters & linters (used by efm-langserver)
 				"stylua",
@@ -42,6 +46,7 @@ return {
 				"shfmt",
 				"hadolint",
 				"fixjson",
+				"nginx-config-formatter",
 
 				-- Debug adapters
 				"debugpy",

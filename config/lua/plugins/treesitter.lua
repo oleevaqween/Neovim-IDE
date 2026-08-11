@@ -25,6 +25,7 @@ return {
       'svelte',
       'solidity',
       'typescript',
+      'tsx',
       'vue',
       'yaml',
     })

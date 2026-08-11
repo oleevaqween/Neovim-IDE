@@ -29,10 +29,24 @@ local lsp_fmt_group = vim.api.nvim_create_augroup("FormatOnSaveGroup", {})
 vim.api.nvim_create_autocmd('BufWritePre', {
     group = lsp_fmt_group,
     callback = function()
-        local efm = vim.lsp.get_clients({ name = "efm" })
+        local efm = vim.lsp.get_clients({ name = "efm", bufnr = 0 })
         if vim.tbl_isempty(efm) then
            return
         end
         vim.lsp.buf.format({ name = "efm", async = true })
+    end,
+})
+
+-- format on save (yaml, via yamlls since efm doesn't cover yaml)
+local yaml_fmt_group = vim.api.nvim_create_augroup("YamlFormatOnSaveGroup", {})
+vim.api.nvim_create_autocmd('BufWritePre', {
+    group = yaml_fmt_group,
+    pattern = { "*.yaml", "*.yml" },
+    callback = function()
+        local yamlls = vim.lsp.get_clients({ name = "yamlls", bufnr = 0 })
+        if vim.tbl_isempty(yamlls) then
+           return
+        end
+        vim.lsp.buf.format({ name = "yamlls", async = true })
     end,
 })
