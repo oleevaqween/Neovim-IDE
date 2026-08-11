@@ -12,7 +12,7 @@ A full Neovim + tmux IDE for **WSL2 and native Linux**, installed in one command
 </p>
 
 <p align="center">
-  <em>Startup screen &nbsp;&nbsp;|&nbsp;&nbsp; IDE in action — nvim-tree, melange theme, lualine</em>
+  <em>Startup screen &nbsp;&nbsp;|&nbsp;&nbsp; IDE in action: nvim-tree, melange theme, lualine</em>
 </p>
 
 ---
@@ -34,7 +34,7 @@ tmux, LSP servers, formatters, linters, and debug adapters.
 ## Platform Support
 
 This started as a WSL2-only setup, but the Neovim/tmux config itself was never actually
-Windows-specific — only the clipboard bridge was. The installer now detects the platform and
+Windows-specific; only the clipboard bridge was. The installer now detects the platform and
 branches on that one difference:
 
 | | WSL2 | Native Linux |
@@ -43,7 +43,7 @@ branches on that one difference:
 | Everything else | identical | identical |
 
 `config/lua/config/options.lua` already checks `vim.fn.has('wsl')` at runtime and only wires up
-`win32yank` when it's actually on WSL2 — on native Linux it falls straight through to Neovim's
+`win32yank` when it's actually on WSL2. On native Linux it falls straight through to Neovim's
 normal system-clipboard integration. No per-platform config forking needed.
 
 ---
@@ -57,7 +57,7 @@ normal system-clipboard integration. No per-platform config forking needed.
 | Node.js v20 LTS | Required for npm-based LSP tools |
 | ripgrep | Fast grep, used by fzf-lua and Neovim search |
 | fd-find | Fast file finder |
-| tmux | Terminal multiplexer — persistent sessions, panes, window management |
+| tmux | Terminal multiplexer: persistent sessions, panes, window management |
 | win32yank *(WSL2 only)* | Windows ↔ WSL2 clipboard bridge |
 | xclip + wl-clipboard *(native Linux only)* | System clipboard integration (X11 + Wayland) |
 
@@ -73,7 +73,7 @@ normal system-clipboard integration. No per-platform config forking needed.
 | LuaSnip + friendly-snippets | Snippet engine + snippet collection |
 | lspkind.nvim | VS Code-style icons in completion menu |
 | Codeium (Windsurf fork) | AI code completion |
-| minuet-ai.nvim | AI completion via Ollama Cloud (gpt-oss:120b) — ghost-text suggestions as an alternative engine to Codeium |
+| minuet-ai.nvim | AI completion via Ollama Cloud (gpt-oss:120b), ghost-text suggestions as an alternative engine to Codeium |
 | nvim-treesitter | Syntax highlighting and code parsing |
 | fzf-lua | Fuzzy finder for files, LSP, git, and more |
 | grug-far.nvim | Project-wide search and replace |
@@ -251,8 +251,8 @@ All Neovim config lives in `config/lua/`:
 
 - **Options** → `config/options.lua`
 - **Keymaps** → `config/keymaps.lua`
-- **Plugins** → `plugins/` — one file per plugin
-- **LSP servers** → `servers/` — one file per server
+- **Plugins** → `plugins/` (one file per plugin)
+- **LSP servers** → `servers/` (one file per server)
 - **Formatters/linters** → `servers/efm-langserver.lua`
 
 tmux config lives in `tmux/`:
@@ -260,7 +260,7 @@ tmux config lives in `tmux/`:
 - **tmux.conf** → `tmux/tmux.conf`
 - **Status bar scripts** → `tmux/scripts/`
 
-To add a new plugin, create a new file in `plugins/` returning a lazy.nvim spec — it's picked up automatically.
+To add a new plugin, create a new file in `plugins/` returning a lazy.nvim spec. It's picked up automatically.
 
 To add a new LSP server:
 1. Add the Mason package name to `plugins/mason.lua` under `ensure_installed`
@@ -276,27 +276,27 @@ This setup turns it into a full IDE, and layers tmux on top so the terminal itse
 of the environment instead of something you tab away to. Concretely, on top of stock Neovim this
 adds:
 
-- **Zero-manual-setup tooling** — Mason + `mason-tool-installer.nvim` install and pin every LSP
+- **Zero-manual-setup tooling**: Mason + `mason-tool-installer.nvim` install and pin every LSP
   server, formatter, linter, and debug adapter headlessly on first run. No hunting for the right
   binary versions or manually running `:MasonInstall` one tool at a time.
 - **Real IDE features stock Neovim doesn't have**: autocompletion with LSP-aware icons
   (nvim-cmp + lspkind), inline diagnostics and a dedicated problems panel (trouble.nvim),
   a visual step-through debugger (nvim-dap-ui) instead of print-statement debugging, and
   project-wide search-and-replace (grug-far.nvim) instead of manual `:%s` per file.
-- **Two AI completion engines** (Codeium and minuet-ai via Ollama Cloud) for inline suggestions —
-  stock Neovim has none.
-- **tmux integration that stock Neovim can't provide on its own** — sessions and even open
+- **Two AI completion engines** (Codeium and minuet-ai via Ollama Cloud) for inline suggestions,
+  something stock Neovim has none of.
+- **tmux integration that stock Neovim can't provide on its own**: sessions and even open
   Neovim buffers survive reboots (tmux-resurrect/continuum), and pane navigation between tmux and
   Neovim splits uses the *same* keys (vim-tmux-navigator), so the boundary between "terminal
   pane" and "editor split" disappears.
-- **Consistent theming end-to-end** — the melange colorscheme is applied to Neovim, lualine, and
+- **Consistent theming end-to-end**: the melange colorscheme is applied to Neovim, lualine, and
   the tmux status bar, so the whole terminal looks like one designed environment instead of an
   editor pasted into a shell.
-- **One-command, idempotent install** — `install.sh` detects the platform, installs every
+- **One-command, idempotent install**: `install.sh` detects the platform, installs every
   dependency, backs up any existing config instead of clobbering it, and installs both the
   Neovim and tmux setup in a single run. A stock setup is whatever you remember to configure by
   hand; this one is reproducible on a brand new machine in minutes.
-- **Cross-platform by design** — the same config runs unmodified on WSL2 and native Linux; only
+- **Cross-platform by design**: the same config runs unmodified on WSL2 and native Linux; only
   the clipboard bridge differs, and the installer picks the right one automatically.
 
 ---
